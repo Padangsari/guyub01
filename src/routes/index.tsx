@@ -50,7 +50,7 @@ function Index() {
                 <div className="aspect-video w-full animate-pulse rounded-lg bg-slate-800" />
               }
             >
-              {() => <HlsPlayer src={cam.src} />}
+              <HlsPlayer src={cam.src} />
             </ClientOnly>
           </section>
         ))}
