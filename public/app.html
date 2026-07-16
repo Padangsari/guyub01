@@ -5190,7 +5190,9 @@ if (currentYear > startYear || (currentYear === startYear && currentMonth >= sta
                 debugLog('🖼️ Step 10: Rendering keuangan tables...');
                 
                 // Render keuangan tables
-                renderKeuanganTables(keuanganData);
+                window.__keuanganDataAll = keuanganData;
+                populateFilterBulanKas(keuanganData);
+                applyLaporanKasFilter();
                 
                 debugLog('✅ Step 11: Process completed successfully!');
                 showNotification(`✅ Data keuangan berhasil dimuat! (${keuanganData.length} transaksi)`, 'success');
