@@ -587,6 +587,15 @@ document.addEventListener('DOMContentLoaded', function () {
          <h3 class="text-lg font-semibold text-gray-900">📊 Laporan Kas RT 01 RW VIII</h3><button onclick="downloadLaporanKasPDF()" class="bg-red-500 hover:bg-red-600 text-white text-sm px-4 py-2 rounded-md transition-colors flex items-center space-x-2 shadow-lg hover:shadow-xl"> <span>📄</span> <span>Download PDF</span> </button>
         </div>
         <p class="text-sm text-gray-600">Laporan keuangan terpisah untuk Dana Sosial dan Dana Kas</p>
+        <!-- Filter Bulan Laporan Kas -->
+        <div class="mt-3 flex flex-wrap items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+         <label for="filterBulanKas" class="text-sm font-medium text-gray-700 flex items-center gap-1">📅 Filter Bulan:</label>
+         <select id="filterBulanKas" onchange="applyLaporanKasFilter()" class="border border-gray-300 rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="all">Semua Bulan</option>
+         </select>
+         <button type="button" onclick="resetLaporanKasFilter()" class="text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1.5 rounded-md transition-colors">Reset</button>
+         <span id="filterBulanKasInfo" class="text-xs text-gray-500 md:ml-auto"></span>
+        </div>
        </div><!-- Dana Sosial Section -->
        <div class="mb-8">
         <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-t-lg">
@@ -5181,7 +5190,9 @@ if (currentYear > startYear || (currentYear === startYear && currentMonth >= sta
                 debugLog('🖼️ Step 10: Rendering keuangan tables...');
                 
                 // Render keuangan tables
-                renderKeuanganTables(keuanganData);
+                window.__keuanganDataAll = keuanganData;
+                populateFilterBulanKas(keuanganData);
+                applyLaporanKasFilter();
                 
                 debugLog('✅ Step 11: Process completed successfully!');
                 showNotification(`✅ Data keuangan berhasil dimuat! (${keuanganData.length} transaksi)`, 'success');
@@ -5339,6 +5350,85 @@ if (currentYear > startYear || (currentYear === startYear && currentMonth >= sta
             renderTable('laporanKasTable', dataKas, 'kas');
             
             console.log('✅ Keuangan tables rendered successfully');
+        }
+
+        // ===== FILTER BULAN LAPORAN KAS =====
+        // Parses tanggal string dari sheet (DD/MM/YYYY, D-M-YYYY, YYYY-MM-DD, dsb) -> {year, month}
+        function parseTanggalKeuangan(str) {
+            if (!str) return null;
+            const s = String(str).trim();
+            // ISO: YYYY-MM-DD
+            let m = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+            if (m) return { year: +m[1], month: +m[2] };
+            // DD/MM/YYYY atau DD-MM-YYYY
+            m = s.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{2,4})/);
+            if (m) {
+                let y = +m[3]; if (y < 100) y += 2000;
+                return { year: y, month: +m[2] };
+            }
+            // "12 Januari 2025" atau "12 Jan 2025"
+            const bulanMap = { jan:1, januari:1, feb:2, februari:2, mar:3, maret:3, apr:4, april:4, mei:5, jun:6, juni:6, jul:7, juli:7, agu:8, agt:8, agustus:8, sep:9, sept:9, september:9, okt:10, oktober:10, nov:11, november:11, des:12, desember:12 };
+            m = s.match(/^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);
+            if (m) {
+                const b = bulanMap[m[2].toLowerCase()];
+                if (b) return { year: +m[3], month: b };
+            }
+            // Fallback: coba Date.parse
+            const d = new Date(s);
+            if (!isNaN(d.getTime())) return { year: d.getFullYear(), month: d.getMonth() + 1 };
+            return null;
+        }
+
+        const NAMA_BULAN_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+        function populateFilterBulanKas(data) {
+            const select = document.getElementById('filterBulanKas');
+            if (!select) return;
+            const prev = select.value;
+            const set = new Set();
+            data.forEach(item => {
+                const p = parseTanggalKeuangan(item.tanggal);
+                if (p) set.add(`${p.year}-${String(p.month).padStart(2,'0')}`);
+            });
+            const keys = Array.from(set).sort().reverse(); // terbaru di atas
+            select.innerHTML = '<option value="all">Semua Bulan</option>' +
+                keys.map(k => {
+                    const [y, mm] = k.split('-');
+                    return `<option value="${k}">${NAMA_BULAN_ID[+mm - 1]} ${y}</option>`;
+                }).join('');
+            // Pertahankan pilihan sebelumnya bila masih ada, atau default ke bulan terbaru
+            if (prev && (prev === 'all' || keys.includes(prev))) {
+                select.value = prev;
+            } else if (keys.length > 0) {
+                select.value = 'all';
+            }
+        }
+
+        function applyLaporanKasFilter() {
+            const all = window.__keuanganDataAll || [];
+            const select = document.getElementById('filterBulanKas');
+            const info = document.getElementById('filterBulanKasInfo');
+            const key = select ? select.value : 'all';
+            let filtered = all;
+            let label = 'Menampilkan semua transaksi';
+            if (key && key !== 'all') {
+                const [y, mm] = key.split('-').map(Number);
+                filtered = all.filter(item => {
+                    const p = parseTanggalKeuangan(item.tanggal);
+                    return p && p.year === y && p.month === mm;
+                });
+                label = `Menampilkan ${NAMA_BULAN_ID[mm - 1]} ${y} — ${filtered.length} transaksi`;
+            } else {
+                label = `Menampilkan semua transaksi (${all.length})`;
+            }
+            if (info) info.textContent = label;
+            renderKeuanganTables(filtered);
+        }
+
+        function resetLaporanKasFilter() {
+            const select = document.getElementById('filterBulanKas');
+            if (select) select.value = 'all';
+            applyLaporanKasFilter();
         }
 
         function renderTable(tableId, data, type) {
