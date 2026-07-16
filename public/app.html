@@ -5352,6 +5352,85 @@ if (currentYear > startYear || (currentYear === startYear && currentMonth >= sta
             console.log('✅ Keuangan tables rendered successfully');
         }
 
+        // ===== FILTER BULAN LAPORAN KAS =====
+        // Parses tanggal string dari sheet (DD/MM/YYYY, D-M-YYYY, YYYY-MM-DD, dsb) -> {year, month}
+        function parseTanggalKeuangan(str) {
+            if (!str) return null;
+            const s = String(str).trim();
+            // ISO: YYYY-MM-DD
+            let m = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+            if (m) return { year: +m[1], month: +m[2] };
+            // DD/MM/YYYY atau DD-MM-YYYY
+            m = s.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{2,4})/);
+            if (m) {
+                let y = +m[3]; if (y < 100) y += 2000;
+                return { year: y, month: +m[2] };
+            }
+            // "12 Januari 2025" atau "12 Jan 2025"
+            const bulanMap = { jan:1, januari:1, feb:2, februari:2, mar:3, maret:3, apr:4, april:4, mei:5, jun:6, juni:6, jul:7, juli:7, agu:8, agt:8, agustus:8, sep:9, sept:9, september:9, okt:10, oktober:10, nov:11, november:11, des:12, desember:12 };
+            m = s.match(/^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);
+            if (m) {
+                const b = bulanMap[m[2].toLowerCase()];
+                if (b) return { year: +m[3], month: b };
+            }
+            // Fallback: coba Date.parse
+            const d = new Date(s);
+            if (!isNaN(d.getTime())) return { year: d.getFullYear(), month: d.getMonth() + 1 };
+            return null;
+        }
+
+        const NAMA_BULAN_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+
+        function populateFilterBulanKas(data) {
+            const select = document.getElementById('filterBulanKas');
+            if (!select) return;
+            const prev = select.value;
+            const set = new Set();
+            data.forEach(item => {
+                const p = parseTanggalKeuangan(item.tanggal);
+                if (p) set.add(`${p.year}-${String(p.month).padStart(2,'0')}`);
+            });
+            const keys = Array.from(set).sort().reverse(); // terbaru di atas
+            select.innerHTML = '<option value="all">Semua Bulan</option>' +
+                keys.map(k => {
+                    const [y, mm] = k.split('-');
+                    return `<option value="${k}">${NAMA_BULAN_ID[+mm - 1]} ${y}</option>`;
+                }).join('');
+            // Pertahankan pilihan sebelumnya bila masih ada, atau default ke bulan terbaru
+            if (prev && (prev === 'all' || keys.includes(prev))) {
+                select.value = prev;
+            } else if (keys.length > 0) {
+                select.value = 'all';
+            }
+        }
+
+        function applyLaporanKasFilter() {
+            const all = window.__keuanganDataAll || [];
+            const select = document.getElementById('filterBulanKas');
+            const info = document.getElementById('filterBulanKasInfo');
+            const key = select ? select.value : 'all';
+            let filtered = all;
+            let label = 'Menampilkan semua transaksi';
+            if (key && key !== 'all') {
+                const [y, mm] = key.split('-').map(Number);
+                filtered = all.filter(item => {
+                    const p = parseTanggalKeuangan(item.tanggal);
+                    return p && p.year === y && p.month === mm;
+                });
+                label = `Menampilkan ${NAMA_BULAN_ID[mm - 1]} ${y} — ${filtered.length} transaksi`;
+            } else {
+                label = `Menampilkan semua transaksi (${all.length})`;
+            }
+            if (info) info.textContent = label;
+            renderKeuanganTables(filtered);
+        }
+
+        function resetLaporanKasFilter() {
+            const select = document.getElementById('filterBulanKas');
+            if (select) select.value = 'all';
+            applyLaporanKasFilter();
+        }
+
         function renderTable(tableId, data, type) {
             const tableBody = document.getElementById(tableId);
             if (!tableBody) {
