@@ -589,6 +589,11 @@ document.addEventListener('DOMContentLoaded', function () {
         <p class="text-sm text-gray-600">Laporan keuangan terpisah untuk Dana Sosial dan Dana Kas</p>
         <!-- Filter Bulan Laporan Kas -->
         <div class="mt-3 flex flex-wrap items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+         <label for="modeTampilanKas" class="text-sm font-medium text-gray-700 flex items-center gap-1">🧭 Mode:</label>
+         <select id="modeTampilanKas" onchange="applyLaporanKasFilter()" class="border border-gray-300 rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="detail">Detail per Bulan (Filter)</option>
+          <option value="ringkasan">Ringkasan Semua Bulan</option>
+         </select>
          <label for="filterBulanKas" class="text-sm font-medium text-gray-700 flex items-center gap-1">📅 Filter Bulan:</label>
          <select id="filterBulanKas" onchange="applyLaporanKasFilter()" class="border border-gray-300 rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
           <option value="all">Semua Bulan</option>
@@ -597,7 +602,9 @@ document.addEventListener('DOMContentLoaded', function () {
          <span id="filterBulanKasInfo" class="text-xs text-gray-500 md:ml-auto"></span>
         </div>
        </div><!-- Dana Sosial Section -->
-       <div class="mb-8">
+       <!-- Ringkasan Bulanan (mode: ringkasan) -->
+       <div id="ringkasanBulananContainer" class="mb-6 hidden space-y-4"></div>
+       <div id="danaSosialSection" class="mb-8">
         <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-t-lg">
          <h4 class="text-lg font-bold flex items-center">🤝 LAPORAN DANA SOSIAL</h4>
          <p class="text-sm opacity-90">Pengelolaan dana untuk kegiatan sosial warga</p>
@@ -655,7 +662,7 @@ document.addEventListener('DOMContentLoaded', function () {
          </div>
         </div>
        </div><!-- Dana Kas Section -->
-       <div class="mb-6">
+       <div id="danaKasSection" class="mb-6">
         <div class="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-t-lg">
          <h4 class="text-lg font-bold flex items-center">💰 LAPORAN DANA KAS</h4>
          <p class="text-sm opacity-90">Pengelolaan dana kas operasional RT</p>
@@ -713,7 +720,7 @@ document.addEventListener('DOMContentLoaded', function () {
          </div>
         </div>
        </div><!-- Summary Gabungan -->
-       <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-lg">
+       <div id="ringkasanTotalSection" class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-lg">
         <h4 class="text-lg font-bold mb-3">📈 RINGKASAN TOTAL KEUANGAN RT</h4>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
          <div class="bg-white bg-opacity-20 rounded-lg p-3 text-center">
@@ -5406,8 +5413,35 @@ if (currentYear > startYear || (currentYear === startYear && currentMonth >= sta
 
         function applyLaporanKasFilter() {
             const all = window.__keuanganDataAll || [];
-            const select = document.getElementById('filterBulanKas');
+            const modeSel = document.getElementById('modeTampilanKas');
+            const mode = modeSel ? modeSel.value : 'detail';
+            const filterSel = document.getElementById('filterBulanKas');
+            const ringkasanEl = document.getElementById('ringkasanBulananContainer');
+            const sosialEl = document.getElementById('danaSosialSection');
+            const kasEl = document.getElementById('danaKasSection');
+            const totalEl = document.getElementById('ringkasanTotalSection');
             const info = document.getElementById('filterBulanKasInfo');
+
+            if (mode === 'ringkasan') {
+                // Sembunyikan tampilan detail, tampilkan ringkasan bulanan bertumpuk
+                if (filterSel) filterSel.disabled = true;
+                if (sosialEl) sosialEl.classList.add('hidden');
+                if (kasEl) kasEl.classList.add('hidden');
+                if (totalEl) totalEl.classList.add('hidden');
+                if (ringkasanEl) ringkasanEl.classList.remove('hidden');
+                renderRingkasanBulanan(all);
+                if (info) info.textContent = `Mode Ringkasan — ${all.length} transaksi total`;
+                return;
+            }
+
+            // Mode detail (default)
+            if (filterSel) filterSel.disabled = false;
+            if (ringkasanEl) ringkasanEl.classList.add('hidden');
+            if (sosialEl) sosialEl.classList.remove('hidden');
+            if (kasEl) kasEl.classList.remove('hidden');
+            if (totalEl) totalEl.classList.remove('hidden');
+
+            const select = document.getElementById('filterBulanKas');
             const key = select ? select.value : 'all';
             let filtered = all;
             let label = 'Menampilkan semua transaksi';
@@ -5428,7 +5462,142 @@ if (currentYear > startYear || (currentYear === startYear && currentMonth >= sta
         function resetLaporanKasFilter() {
             const select = document.getElementById('filterBulanKas');
             if (select) select.value = 'all';
+            const modeSel = document.getElementById('modeTampilanKas');
+            if (modeSel) modeSel.value = 'detail';
             applyLaporanKasFilter();
+        }
+
+        // ===== RINGKASAN BULANAN (stacked, terbaru di atas) =====
+        function renderRingkasanBulanan(all) {
+            const container = document.getElementById('ringkasanBulananContainer');
+            if (!container) return;
+            if (!all || all.length === 0) {
+                container.innerHTML = `<div class="bg-white border border-gray-200 rounded-lg p-8 text-center text-gray-500">
+                    <p class="text-lg font-medium">📊 Belum ada data</p>
+                    <p class="text-sm mt-2">Klik tombol "🔄 Load Data" untuk memuat transaksi keuangan</p>
+                </div>`;
+                return;
+            }
+
+            // Group per bulan
+            const groups = new Map();
+            all.forEach(item => {
+                const p = parseTanggalKeuangan(item.tanggal);
+                if (!p) return;
+                const key = `${p.year}-${String(p.month).padStart(2,'0')}`;
+                if (!groups.has(key)) groups.set(key, []);
+                groups.get(key).push(item);
+            });
+            const keys = Array.from(groups.keys()).sort().reverse(); // terbaru di atas
+
+            const fmt = (n) => 'Rp ' + formatCurrency(n, true);
+            const now = new Date();
+            const currentKey = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`;
+
+            const html = keys.map((k, idx) => {
+                const [y, mm] = k.split('-');
+                const items = groups.get(k);
+                const pemasukanSosial = items.reduce((s, it) => s + (it.pemasukanSosial||0), 0);
+                const pengeluaranSosial = items.reduce((s, it) => s + (it.pengeluaranSosial||0), 0);
+                const pemasukanKas = items.reduce((s, it) => s + (it.pemasukanKas||0), 0);
+                const pengeluaranKas = items.reduce((s, it) => s + (it.pengeluaranKas||0), 0);
+                const totalPemasukan = pemasukanSosial + pemasukanKas;
+                const totalPengeluaran = pengeluaranSosial + pengeluaranKas;
+                const saldoBulan = totalPemasukan - totalPengeluaran;
+
+                const isCurrent = k === currentKey;
+                const isLatest = idx === 0;
+                const badge = isCurrent
+                    ? '<span class="ml-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">📌 Bulan Ini</span>'
+                    : (isLatest ? '<span class="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-semibold">Terbaru</span>' : '');
+
+                const headerGrad = isCurrent
+                    ? 'from-emerald-500 to-teal-600'
+                    : 'from-indigo-500 to-purple-600';
+
+                const rows = items.map(it => {
+                    const pIn = (it.pemasukanSosial||0) + (it.pemasukanKas||0);
+                    const pOut = (it.pengeluaranSosial||0) + (it.pengeluaranKas||0);
+                    return `<tr class="hover:bg-gray-50">
+                        <td class="px-2 py-2 text-xs text-gray-700 whitespace-nowrap">${escapeHtml(it.tanggal||'-')}</td>
+                        <td class="px-2 py-2 text-xs text-gray-800">${escapeHtml(it.uraian||'-')}</td>
+                        <td class="px-2 py-2 text-xs text-green-700 whitespace-nowrap">${pIn>0 ? fmt(pIn) : '-'}</td>
+                        <td class="px-2 py-2 text-xs text-red-700 whitespace-nowrap">${pOut>0 ? fmt(pOut) : '-'}</td>
+                    </tr>`;
+                }).join('');
+
+                return `
+                <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
+                    <div class="bg-gradient-to-r ${headerGrad} text-white px-4 py-3 flex items-center justify-between flex-wrap gap-2">
+                        <h4 class="text-base md:text-lg font-bold flex items-center flex-wrap">
+                            📅 ${NAMA_BULAN_ID[+mm - 1]} ${y} ${badge}
+                        </h4>
+                        <span class="text-xs md:text-sm opacity-90">${items.length} transaksi</span>
+                    </div>
+                    <div class="p-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-3 text-center">
+                            <div class="text-lg md:text-xl font-bold text-green-600">${fmt(totalPemasukan)}</div>
+                            <div class="text-xs text-green-700 mt-1">💰 Total Pemasukan</div>
+                            <div class="text-[10px] text-green-600 mt-1">Sosial ${fmt(pemasukanSosial)} • Kas ${fmt(pemasukanKas)}</div>
+                        </div>
+                        <div class="bg-red-50 border border-red-200 rounded-lg p-3 text-center">
+                            <div class="text-lg md:text-xl font-bold text-red-600">${fmt(totalPengeluaran)}</div>
+                            <div class="text-xs text-red-700 mt-1">💸 Total Pengeluaran</div>
+                            <div class="text-[10px] text-red-600 mt-1">Sosial ${fmt(pengeluaranSosial)} • Kas ${fmt(pengeluaranKas)}</div>
+                        </div>
+                        <div class="${saldoBulan>=0 ? 'bg-blue-50 border-blue-200' : 'bg-orange-50 border-orange-200'} border rounded-lg p-3 text-center">
+                            <div class="text-lg md:text-xl font-bold ${saldoBulan>=0 ? 'text-blue-600' : 'text-orange-600'}">${fmt(saldoBulan)}</div>
+                            <div class="text-xs ${saldoBulan>=0 ? 'text-blue-700' : 'text-orange-700'} mt-1">📊 Sisa Saldo Bulan Ini</div>
+                            <div class="text-[10px] ${saldoBulan>=0 ? 'text-blue-600' : 'text-orange-600'} mt-1">(Pemasukan − Pengeluaran)</div>
+                        </div>
+                    </div>
+                    <details class="border-t border-gray-100" ${isLatest ? 'open' : ''}>
+                        <summary class="cursor-pointer select-none px-4 py-2 text-xs font-medium text-gray-600 hover:bg-gray-50">📋 Lihat detail transaksi (${items.length})</summary>
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th class="px-2 py-2 text-left text-[10px] font-semibold text-gray-600 uppercase">Tanggal</th>
+                                        <th class="px-2 py-2 text-left text-[10px] font-semibold text-gray-600 uppercase">Uraian</th>
+                                        <th class="px-2 py-2 text-left text-[10px] font-semibold text-green-700 uppercase">Pemasukan</th>
+                                        <th class="px-2 py-2 text-left text-[10px] font-semibold text-red-700 uppercase">Pengeluaran</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-gray-100">${rows}</tbody>
+                            </table>
+                        </div>
+                    </details>
+                </div>`;
+            }).join('');
+
+            // Grand total saldo kumulatif (semua bulan)
+            const grandIn = all.reduce((s,it) => s + (it.pemasukanSosial||0) + (it.pemasukanKas||0), 0);
+            const grandOut = all.reduce((s,it) => s + (it.pengeluaranSosial||0) + (it.pengeluaranKas||0), 0);
+            const grandSaldo = grandIn - grandOut;
+            const grandCard = `
+                <div class="bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-xl p-4 shadow-lg">
+                    <h4 class="text-base md:text-lg font-bold mb-3">🏦 Saldo Kumulatif Seluruh Bulan</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+                        <div class="bg-white/15 rounded-lg p-3 text-center">
+                            <div class="text-lg md:text-xl font-bold">${fmt(grandIn)}</div>
+                            <div class="text-xs opacity-90 mt-1">Total Pemasukan</div>
+                        </div>
+                        <div class="bg-white/15 rounded-lg p-3 text-center">
+                            <div class="text-lg md:text-xl font-bold">${fmt(grandOut)}</div>
+                            <div class="text-xs opacity-90 mt-1">Total Pengeluaran</div>
+                        </div>
+                        <div class="bg-white/25 rounded-lg p-3 text-center">
+                            <div class="text-lg md:text-xl font-bold">${fmt(grandSaldo)}</div>
+                            <div class="text-xs opacity-90 mt-1">Saldo Akhir</div>
+                        </div>
+                    </div>
+                </div>`;
+
+            container.innerHTML = grandCard + html;
+        }
+
+        function escapeHtml(s) {
+            return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
         }
 
         function renderTable(tableId, data, type) {
