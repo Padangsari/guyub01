@@ -589,6 +589,11 @@ document.addEventListener('DOMContentLoaded', function () {
         <p class="text-sm text-gray-600">Laporan keuangan terpisah untuk Dana Sosial dan Dana Kas</p>
         <!-- Filter Bulan Laporan Kas -->
         <div class="mt-3 flex flex-wrap items-center gap-2 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+         <label for="modeTampilanKas" class="text-sm font-medium text-gray-700 flex items-center gap-1">🧭 Mode:</label>
+         <select id="modeTampilanKas" onchange="applyLaporanKasFilter()" class="border border-gray-300 rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+          <option value="detail">Detail per Bulan (Filter)</option>
+          <option value="ringkasan">Ringkasan Semua Bulan</option>
+         </select>
          <label for="filterBulanKas" class="text-sm font-medium text-gray-700 flex items-center gap-1">📅 Filter Bulan:</label>
          <select id="filterBulanKas" onchange="applyLaporanKasFilter()" class="border border-gray-300 rounded-md px-3 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500">
           <option value="all">Semua Bulan</option>
@@ -597,7 +602,9 @@ document.addEventListener('DOMContentLoaded', function () {
          <span id="filterBulanKasInfo" class="text-xs text-gray-500 md:ml-auto"></span>
         </div>
        </div><!-- Dana Sosial Section -->
-       <div class="mb-8">
+       <!-- Ringkasan Bulanan (mode: ringkasan) -->
+       <div id="ringkasanBulananContainer" class="mb-6 hidden space-y-4"></div>
+       <div id="danaSosialSection" class="mb-8">
         <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 rounded-t-lg">
          <h4 class="text-lg font-bold flex items-center">🤝 LAPORAN DANA SOSIAL</h4>
          <p class="text-sm opacity-90">Pengelolaan dana untuk kegiatan sosial warga</p>
@@ -655,7 +662,7 @@ document.addEventListener('DOMContentLoaded', function () {
          </div>
         </div>
        </div><!-- Dana Kas Section -->
-       <div class="mb-6">
+       <div id="danaKasSection" class="mb-6">
         <div class="bg-gradient-to-r from-green-500 to-green-600 text-white p-4 rounded-t-lg">
          <h4 class="text-lg font-bold flex items-center">💰 LAPORAN DANA KAS</h4>
          <p class="text-sm opacity-90">Pengelolaan dana kas operasional RT</p>
@@ -713,7 +720,7 @@ document.addEventListener('DOMContentLoaded', function () {
          </div>
         </div>
        </div><!-- Summary Gabungan -->
-       <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-lg">
+       <div id="ringkasanTotalSection" class="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-4 rounded-lg">
         <h4 class="text-lg font-bold mb-3">📈 RINGKASAN TOTAL KEUANGAN RT</h4>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
          <div class="bg-white bg-opacity-20 rounded-lg p-3 text-center">
