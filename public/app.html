@@ -5355,7 +5355,11 @@ if (currentYear > startYear || (currentYear === startYear && currentMonth >= sta
             
             // Render Dana Kas table
             renderTable('laporanKasTable', dataKas, 'kas');
-            
+
+            // Jika sedang mode ringkasan, sisipkan baris ringkasan per akhir bulan
+            injectMonthlySummaryRows('laporanSosialTable', dataSosial, 'sosial');
+            injectMonthlySummaryRows('laporanKasTable', dataKas, 'kas');
+
             console.log('✅ Keuangan tables rendered successfully');
         }
 
@@ -5422,24 +5426,26 @@ if (currentYear > startYear || (currentYear === startYear && currentMonth >= sta
             const totalEl = document.getElementById('ringkasanTotalSection');
             const info = document.getElementById('filterBulanKasInfo');
 
+            // Selalu sembunyikan container ringkasan kartu lama — sekarang kita pakai
+            // baris ringkasan di dalam tabel detail.
+            if (ringkasanEl) ringkasanEl.classList.add('hidden');
+            if (sosialEl) sosialEl.classList.remove('hidden');
+            if (kasEl) kasEl.classList.remove('hidden');
+            if (totalEl) totalEl.classList.remove('hidden');
+
             if (mode === 'ringkasan') {
-                // Sembunyikan tampilan detail, tampilkan ringkasan bulanan bertumpuk
+                // Mode Ringkasan: tampilkan SEMUA transaksi tetap dalam bentuk baris,
+                // dan sisipkan baris ringkasan di akhir tiap bulan.
                 if (filterSel) filterSel.disabled = true;
-                if (sosialEl) sosialEl.classList.add('hidden');
-                if (kasEl) kasEl.classList.add('hidden');
-                if (totalEl) totalEl.classList.add('hidden');
-                if (ringkasanEl) ringkasanEl.classList.remove('hidden');
-                renderRingkasanBulanan(all);
-                if (info) info.textContent = `Mode Ringkasan — ${all.length} transaksi total`;
+                window.__kasMode = 'ringkasan';
+                renderKeuanganTables(all);
+                if (info) info.textContent = `Mode Ringkasan — ${all.length} transaksi total, dengan ringkasan tiap akhir bulan`;
                 return;
             }
 
             // Mode detail (default)
             if (filterSel) filterSel.disabled = false;
-            if (ringkasanEl) ringkasanEl.classList.add('hidden');
-            if (sosialEl) sosialEl.classList.remove('hidden');
-            if (kasEl) kasEl.classList.remove('hidden');
-            if (totalEl) totalEl.classList.remove('hidden');
+            window.__kasMode = 'detail';
 
             const select = document.getElementById('filterBulanKas');
             const key = select ? select.value : 'all';
@@ -5676,6 +5682,80 @@ if (currentYear > startYear || (currentYear === startYear && currentMonth >= sta
             });
             
             console.log(`✅ ${type} table rendered with ${data.length} rows`);
+        }
+
+        // Menyisipkan baris ringkasan bulanan di akhir tiap bulan (mode ringkasan).
+        // Dipanggil ulang setelah renderTable selesai kalau window.__kasMode === 'ringkasan'.
+        function injectMonthlySummaryRows(tableId, data, type) {
+            const tableBody = document.getElementById(tableId);
+            if (!tableBody || !data || data.length === 0) return;
+            if (window.__kasMode !== 'ringkasan') return;
+
+            // Group indices per bulan (urut kronologis sesuai data)
+            const monthOrder = [];
+            const monthMap = new Map();
+            data.forEach((it, i) => {
+                const p = parseTanggalKeuangan(it.tanggal);
+                if (!p) return;
+                const key = `${p.year}-${String(p.month).padStart(2,'0')}`;
+                if (!monthMap.has(key)) { monthMap.set(key, []); monthOrder.push(key); }
+                monthMap.get(key).push(i);
+            });
+
+            // Bangun ulang tbody: sisipkan baris ringkasan setelah item terakhir tiap bulan
+            const rows = Array.from(tableBody.querySelectorAll('tr'));
+            tableBody.innerHTML = '';
+            let rowCursor = 0;
+            monthOrder.forEach(key => {
+                const idxs = monthMap.get(key);
+                const [y, mm] = key.split('-');
+                const namaBulan = `${NAMA_BULAN_ID[+mm - 1]} ${y}`;
+
+                // Hitung agregat bulan
+                let pemasukanBulan = 0, pengeluaranBulan = 0;
+                idxs.forEach(i => {
+                    const it = data[i];
+                    pemasukanBulan += (type === 'sosial' ? it.pemasukanSosial : it.pemasukanKas) || 0;
+                    pengeluaranBulan += (type === 'sosial' ? it.pengeluaranSosial : it.pengeluaranKas) || 0;
+                });
+                const saldoAkhir = data[idxs[idxs.length - 1]].saldo;
+                const saldoAwal = saldoAkhir - pemasukanBulan + pengeluaranBulan;
+
+                // Tempel baris transaksi bulan ini
+                idxs.forEach(() => {
+                    if (rows[rowCursor]) tableBody.appendChild(rows[rowCursor]);
+                    rowCursor++;
+                });
+
+                // Baris ringkasan
+                const fmt = (n) => formatCurrency(n, true);
+                const saldoColor = saldoAkhir >= 0 ? 'text-blue-700' : 'text-red-700';
+                const summary = document.createElement('tr');
+                summary.className = 'bg-gradient-to-r from-indigo-50 to-blue-50 border-t-2 border-b-2 border-indigo-200';
+                summary.innerHTML = `
+                    <td class="px-2 py-2 text-xs font-bold text-indigo-800 whitespace-nowrap">
+                        📅 Ringkasan<br><span class="font-semibold">${namaBulan}</span>
+                    </td>
+                    <td class="px-2 py-2 text-xs text-indigo-900">
+                        <div class="font-semibold">Saldo Awal: <span class="text-gray-700">Rp ${fmt(saldoAwal)}</span></div>
+                        <div class="text-[11px] text-indigo-700 mt-0.5">${idxs.length} transaksi bulan ini</div>
+                    </td>
+                    <td class="px-2 py-2 text-xs font-bold text-green-700 whitespace-nowrap">
+                        + Rp ${fmt(pemasukanBulan)}
+                    </td>
+                    <td class="px-2 py-2 text-xs font-bold text-red-700 whitespace-nowrap">
+                        − Rp ${fmt(pengeluaranBulan)}
+                    </td>
+                    <td class="px-2 py-2 text-xs font-extrabold ${saldoColor} whitespace-nowrap">
+                        <div class="flex items-center">
+                            <span class="mr-1">🏦</span>
+                            <span>Rp ${fmt(saldoAkhir)}</span>
+                        </div>
+                        <div class="text-[10px] font-normal text-gray-600 mt-0.5">saldo akhir bulan</div>
+                    </td>
+                `;
+                tableBody.appendChild(summary);
+            });
         }
 
         // Helper functions for jenis kegiatan styling
