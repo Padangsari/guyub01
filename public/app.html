@@ -5422,24 +5422,26 @@ if (currentYear > startYear || (currentYear === startYear && currentMonth >= sta
             const totalEl = document.getElementById('ringkasanTotalSection');
             const info = document.getElementById('filterBulanKasInfo');
 
+            // Selalu sembunyikan container ringkasan kartu lama — sekarang kita pakai
+            // baris ringkasan di dalam tabel detail.
+            if (ringkasanEl) ringkasanEl.classList.add('hidden');
+            if (sosialEl) sosialEl.classList.remove('hidden');
+            if (kasEl) kasEl.classList.remove('hidden');
+            if (totalEl) totalEl.classList.remove('hidden');
+
             if (mode === 'ringkasan') {
-                // Sembunyikan tampilan detail, tampilkan ringkasan bulanan bertumpuk
+                // Mode Ringkasan: tampilkan SEMUA transaksi tetap dalam bentuk baris,
+                // dan sisipkan baris ringkasan di akhir tiap bulan.
                 if (filterSel) filterSel.disabled = true;
-                if (sosialEl) sosialEl.classList.add('hidden');
-                if (kasEl) kasEl.classList.add('hidden');
-                if (totalEl) totalEl.classList.add('hidden');
-                if (ringkasanEl) ringkasanEl.classList.remove('hidden');
-                renderRingkasanBulanan(all);
-                if (info) info.textContent = `Mode Ringkasan — ${all.length} transaksi total`;
+                window.__kasMode = 'ringkasan';
+                renderKeuanganTables(all);
+                if (info) info.textContent = `Mode Ringkasan — ${all.length} transaksi total, dengan ringkasan tiap akhir bulan`;
                 return;
             }
 
             // Mode detail (default)
             if (filterSel) filterSel.disabled = false;
-            if (ringkasanEl) ringkasanEl.classList.add('hidden');
-            if (sosialEl) sosialEl.classList.remove('hidden');
-            if (kasEl) kasEl.classList.remove('hidden');
-            if (totalEl) totalEl.classList.remove('hidden');
+            window.__kasMode = 'detail';
 
             const select = document.getElementById('filterBulanKas');
             const key = select ? select.value : 'all';
