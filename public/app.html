@@ -5355,7 +5355,11 @@ if (currentYear > startYear || (currentYear === startYear && currentMonth >= sta
             
             // Render Dana Kas table
             renderTable('laporanKasTable', dataKas, 'kas');
-            
+
+            // Jika sedang mode ringkasan, sisipkan baris ringkasan per akhir bulan
+            injectMonthlySummaryRows('laporanSosialTable', dataSosial, 'sosial');
+            injectMonthlySummaryRows('laporanKasTable', dataKas, 'kas');
+
             console.log('✅ Keuangan tables rendered successfully');
         }
 
