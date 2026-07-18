@@ -899,168 +899,202 @@ document.addEventListener('DOMContentLoaded', function () {
         </div>
        </div>
       </div><!-- CCTV Merbau Raya -->
+<!-- CCTV RT 1 -->
       <div class="mb-8">
        <div class="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-4 rounded-t-lg">
-        <h3 class="text-lg font-bold flex items-center">📹 CCTV MERBAU RAYA</h3>
-        <p class="text-sm opacity-90">Monitoring Jl. Merbau Raya 275-282 - 1 Kamera - 2 view</p>
+        <h3 class="text-lg font-bold flex items-center">📹 CCTV RT 1</h3>
+        <p class="text-sm opacity-90">Monitoring - 2 Camera - 2 view</p>
        </div>
        <div class="bg-gray-100 p-4 rounded-b-lg">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4"><!-- Kamera 1 Merbau Raya -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+         <div class="bg-black rounded-lg overflow-hidden shadow-lg">
+          <div class="relative aspect-video bg-black flex items-center justify-center">
+           <video class="hls-live w-full h-full object-contain" controls autoplay muted playsinline
+             data-src="https://livepantau.semarangkota.go.id/e750d09d-034d-46b7-89b5-e2e9a5db86e5/index.m3u8"></video>
+           <div class="absolute top-2 right-2 bg-yellow-500 text-white px-2 py-1 rounded text-xs font-bold pointer-events-none">🛠️ PERBAIKAN</div>
+           <div class="absolute top-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs pointer-events-none" id="timestamp1">--:--:--</div>
+          </div>
+          <div class="bg-gray-800 text-white p-2 text-center">
+           <p class="text-sm font-medium">📍 Jl. Merbau Selatan Dalam IV</p>
+           <div class="flex justify-center items-center space-x-2 mt-1">
+            <div class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div><span class="text-xs text-yellow-300">Perbaikan</span>
+           </div>
+          </div>
+         </div>
+         <div class="bg-black rounded-lg overflow-hidden shadow-lg">
+          <div class="relative aspect-video bg-black flex items-center justify-center">
+           <video class="hls-live w-full h-full object-contain" controls autoplay muted playsinline
+             data-src="https://livepantau.semarangkota.go.id/e750d09d-034d-46b7-89b5-e2e9a5db86e5/index.m3u8"></video>
+           <div class="absolute top-2 right-2 bg-yellow-500 text-white px-2 py-1 rounded text-xs font-bold pointer-events-none">🛠️ PERBAIKAN</div>
+           <div class="absolute top-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs pointer-events-none" id="timestamp2">--:--:--</div>
+          </div>
+          <div class="bg-gray-800 text-white p-2 text-center">
+           <p class="text-sm font-medium">📍 Jl. Merbau Selatan Dalam III</p>
+           <div class="flex justify-center items-center space-x-2 mt-1">
+            <div class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div><span class="text-xs text-yellow-300">Perbaikan</span>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div><!-- /CCTV RT 1 -->
+<!-- CCTV RT 2 -->
+      <div class="mb-8">
+       <div class="bg-gradient-to-r from-green-600 to-green-700 text-white p-4 rounded-t-lg">
+        <h3 class="text-lg font-bold flex items-center">📹 CCTV RT 2</h3>
+        <p class="text-sm opacity-90">Monitoring - 2 Camera - 2 view</p>
+       </div>
+       <div class="bg-gray-100 p-4 rounded-b-lg">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
          <div class="bg-black rounded-lg overflow-hidden shadow-lg">
           <div class="relative aspect-video bg-black flex items-center justify-center">
            <video class="hls-live w-full h-full object-contain" controls autoplay muted playsinline
              data-src="https://livepantau.semarangkota.go.id/67b6b31a-7dfd-4edb-873e-57c3c5fb5d02/video1_stream.m3u8"></video>
-           <div class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold animate-pulse pointer-events-none">
-            ● REC
-           </div>
-           <div class="absolute top-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs pointer-events-none" id="timestamp1">
-            --:--:--
-           </div>
+           <div class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold animate-pulse pointer-events-none">● REC</div>
+           <div class="absolute top-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs pointer-events-none" id="timestamp3">--:--:--</div>
           </div>
           <div class="bg-gray-800 text-white p-2 text-center">
-           <p class="text-sm font-medium">📍 CCTV - Wilayah RT 2</p>
+           <p class="text-sm font-medium">📍 Jl. Merbau Selatan I</p>
            <div class="flex justify-center items-center space-x-2 mt-1">
-            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div><span class="text-xs">Online</span>
+            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div><span class="text-xs">Online (Aktif)</span>
            </div>
           </div>
-         </div><!-- Kamera 2 Merbau Raya -->
+         </div>
          <div class="bg-black rounded-lg overflow-hidden shadow-lg">
           <div class="relative aspect-video bg-black flex items-center justify-center">
            <video class="hls-live w-full h-full object-contain" controls autoplay muted playsinline
              data-src="https://livepantau.semarangkota.go.id/c6f87fcc-799c-4ec7-a650-e6f4fec64124/video1_stream.m3u8"></video>
-           <div class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold animate-pulse pointer-events-none">
-            ● REC
-           </div>
-           <div class="absolute top-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs pointer-events-none" id="timestamp2">
-            --:--:--
-           </div>
+           <div class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold animate-pulse pointer-events-none">● REC</div>
+           <div class="absolute top-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs pointer-events-none" id="timestamp4">--:--:--</div>
           </div>
           <div class="bg-gray-800 text-white p-2 text-center">
-           <p class="text-sm font-medium">📍 CCTV - Badminton</p>
+           <p class="text-sm font-medium">📍 Jl. Merbau Selatan I</p>
            <div class="flex justify-center items-center space-x-2 mt-1">
-            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div><span class="text-xs">Online</span>
+            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div><span class="text-xs">Online (Aktif)</span>
            </div>
           </div>
          </div>
         </div>
        </div>
-      </div><!-- CCTV Merbau Selatan Dalam III -->
+      </div><!-- /CCTV RT 2 -->
+<!-- CCTV RT 3 -->
       <div class="mb-8">
-       <div class="bg-gradient-to-r from-green-600 to-green-700 text-white p-4 rounded-t-lg">
-        <h3 class="text-lg font-bold flex items-center">📹 CCTV MERBAU SELATAN DALAM III</h3>
-        <p class="text-sm opacity-90">Monitoring Jl. Merbau Selatan Dalam III - 1 Kamera - 2 view</p>
-       </div>
-       <div class="bg-gray-100 p-4 rounded-b-lg">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4"><!-- Kamera 3 Merbau Selatan Dalam III -->
-         <div class="bg-black rounded-lg overflow-hidden shadow-lg">
-          <div class="relative aspect-video bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
-           <div class="text-center text-white">
-            <div class="w-16 h-16 mx-auto mb-3 bg-green-500 rounded-full flex items-center justify-center animate-pulse">
-             <svg class="w-8 h-8" fill="currentColor" viewbox="0 0 20 20"><path d="M2 6a2 2 0 012-2h6l2 2h6a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14 8a2 2 0 11-4 0 2 2 0 014 0z" />
-             </svg>
-            </div>
-            <p class="text-sm font-medium">📹 LIVE</p>
-            <p class="text-xs opacity-75">Kamera 2 - sorot ke timur</p>
-           </div>
-           <div class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold animate-pulse">
-            ● REC
-           </div>
-           <div class="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs" id="timestamp3">
-            --:--:--
-           </div>
-          </div>
-          <div class="bg-gray-800 text-white p-2 text-center">
-           <p class="text-sm font-medium">📍 Depan Rumah Bp.Ali - Dalam III</p>
-           <div class="flex justify-center items-center space-x-2 mt-1">
-            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div><span class="text-xs">Online</span>
-           </div>
-          </div>
-         </div><!-- Kamera 4 Merbau Selatan Dalam III -->
-         <div class="bg-black rounded-lg overflow-hidden shadow-lg">
-          <div class="relative aspect-video bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
-           <div class="text-center text-white">
-            <div class="w-16 h-16 mx-auto mb-3 bg-green-500 rounded-full flex items-center justify-center animate-pulse">
-             <svg class="w-8 h-8" fill="currentColor" viewbox="0 0 20 20"><path d="M2 6a2 2 0 012-2h6l2 2h6a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14 8a2 2 0 11-4 0 2 2 0 014 0z" />
-             </svg>
-            </div>
-            <p class="text-sm font-medium">📹 LIVE</p>
-            <p class="text-xs opacity-75">Kamera 2 - Sorot ke Barat</p>
-           </div>
-           <div class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold animate-pulse">
-            ● REC
-           </div>
-           <div class="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs" id="timestamp4">
-            --:--:--
-           </div>
-          </div>
-          <div class="bg-gray-800 text-white p-2 text-center">
-           <p class="text-sm font-medium">📍 Depan Rumah Bp. Ali - Dalam III</p>
-           <div class="flex justify-center items-center space-x-2 mt-1">
-            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div><span class="text-xs">Online</span>
-           </div>
-          </div>
-         </div>
-        </div>
-       </div>
-      </div><!-- CCTV Merbau Selatan Dalam IV -->
-      <div class="mb-6">
        <div class="bg-gradient-to-r from-purple-600 to-purple-700 text-white p-4 rounded-t-lg">
-        <h3 class="text-lg font-bold flex items-center">📹 CCTV MERBAU SELATAN DALAM IV</h3>
-        <p class="text-sm opacity-90">Monitoring  Jl. Merbau Selatan Dalam IV - 1 Kamera - 2 view</p>
+        <h3 class="text-lg font-bold flex items-center">📹 CCTV RT 3</h3>
+        <p class="text-sm opacity-90">Monitoring - 2 Camera - 2 view</p>
        </div>
        <div class="bg-gray-100 p-4 rounded-b-lg">
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4"><!-- Kamera 5 Merbau Selatan Dalam IV -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
          <div class="bg-black rounded-lg overflow-hidden shadow-lg">
-          <div class="relative aspect-video bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
-           <div class="text-center text-white">
-            <div class="w-16 h-16 mx-auto mb-3 bg-green-500 rounded-full flex items-center justify-center animate-pulse">
-             <svg class="w-8 h-8" fill="currentColor" viewbox="0 0 20 20"><path d="M2 6a2 2 0 012-2h6l2 2h6a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14 8a2 2 0 11-4 0 2 2 0 014 0z" />
-             </svg>
-            </div>
-            <p class="text-sm font-medium">📹 LIVE</p>
-            <p class="text-xs opacity-75">Kamera 3 - Sorot ke Timur</p>
-           </div>
-           <div class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold animate-pulse">
-            ● REC
-           </div>
-           <div class="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs" id="timestamp5">
-            --:--:--
-           </div>
+          <div class="relative aspect-video bg-black flex items-center justify-center">
+           <video class="hls-live w-full h-full object-contain" controls autoplay muted playsinline
+             data-src="https://livepantau.semarangkota.go.id/3166f660-9362-4be1-aafe-4459873cc396/video1_stream.m3u8"></video>
+           <div class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold animate-pulse pointer-events-none">● REC</div>
+           <div class="absolute top-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs pointer-events-none" id="timestamp5">--:--:--</div>
           </div>
           <div class="bg-gray-800 text-white p-2 text-center">
-           <p class="text-sm font-medium">📍 Depan Rumah Bp. Arief - Dalam IV</p>
+           <p class="text-sm font-medium">📍 Jl. Merbau Selatan Dalam I</p>
            <div class="flex justify-center items-center space-x-2 mt-1">
-            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div><span class="text-xs">Online</span>
+            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div><span class="text-xs">Online (Aktif)</span>
            </div>
           </div>
-         </div><!-- Kamera 6 Merbau Selatan Dalam IV -->
+         </div>
          <div class="bg-black rounded-lg overflow-hidden shadow-lg">
-          <div class="relative aspect-video bg-gradient-to-br from-gray-800 to-gray-900 flex items-center justify-center">
-           <div class="text-center text-white">
-            <div class="w-16 h-16 mx-auto mb-3 bg-green-500 rounded-full flex items-center justify-center animate-pulse">
-             <svg class="w-8 h-8" fill="currentColor" viewbox="0 0 20 20"><path d="M2 6a2 2 0 012-2h6l2 2h6a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14 8a2 2 0 11-4 0 2 2 0 014 0z" />
-             </svg>
-            </div>
-            <p class="text-sm font-medium">📹 LIVE</p>
-            <p class="text-xs opacity-75">Kamera 3 - Sorot ke Barat</p>
-           </div>
-           <div class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold animate-pulse">
-            ● REC
-           </div>
-           <div class="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs" id="timestamp6">
-            --:--:--
-           </div>
+          <div class="relative aspect-video bg-black flex items-center justify-center">
+           <video class="hls-live w-full h-full object-contain" controls autoplay muted playsinline
+             data-src="https://livepantau.semarangkota.go.id/df6f46f8-b6e6-4c3d-9810-dc6490223358/video1_stream.m3u8"></video>
+           <div class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold animate-pulse pointer-events-none">● REC</div>
+           <div class="absolute top-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs pointer-events-none" id="timestamp6">--:--:--</div>
           </div>
           <div class="bg-gray-800 text-white p-2 text-center">
-           <p class="text-sm font-medium">📍Depan Rumah Bp. Arief - Dalam IV</p>
+           <p class="text-sm font-medium">📍 Jl. Merbau Selatan Dalam I</p>
            <div class="flex justify-center items-center space-x-2 mt-1">
-            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div><span class="text-xs">Online</span>
+            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div><span class="text-xs">Online (Aktif)</span>
            </div>
           </div>
          </div>
         </div>
        </div>
-      </div><!-- Control Panel -->
+      </div><!-- /CCTV RT 3 -->
+<!-- CCTV RT 4 -->
+      <div class="mb-8">
+       <div class="bg-gradient-to-r from-orange-600 to-orange-700 text-white p-4 rounded-t-lg">
+        <h3 class="text-lg font-bold flex items-center">📹 CCTV RT 4</h3>
+        <p class="text-sm opacity-90">Monitoring - 2 Camera - 2 view</p>
+       </div>
+       <div class="bg-gray-100 p-4 rounded-b-lg">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+         <div class="bg-black rounded-lg overflow-hidden shadow-lg">
+          <div class="relative aspect-video bg-black flex items-center justify-center">
+           <video class="hls-live w-full h-full object-contain" controls autoplay muted playsinline
+             data-src="https://livepantau.semarangkota.go.id/86f45d4e-667e-4c9b-919b-6db67de4816a/video1_stream.m3u8"></video>
+           <div class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold animate-pulse pointer-events-none">● REC</div>
+           <div class="absolute top-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs pointer-events-none" id="timestamp7">--:--:--</div>
+          </div>
+          <div class="bg-gray-800 text-white p-2 text-center">
+           <p class="text-sm font-medium">📍 Jl. Merbau Selatan Dalam II</p>
+           <div class="flex justify-center items-center space-x-2 mt-1">
+            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div><span class="text-xs">Online (Aktif)</span>
+           </div>
+          </div>
+         </div>
+         <div class="bg-black rounded-lg overflow-hidden shadow-lg">
+          <div class="relative aspect-video bg-black flex items-center justify-center">
+           <video class="hls-live w-full h-full object-contain" controls autoplay muted playsinline
+             data-src="https://livepantau.semarangkota.go.id/2979559e-3211-4666-b332-eb83994b8533/video1_stream.m3u8"></video>
+           <div class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold animate-pulse pointer-events-none">● REC</div>
+           <div class="absolute top-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs pointer-events-none" id="timestamp8">--:--:--</div>
+          </div>
+          <div class="bg-gray-800 text-white p-2 text-center">
+           <p class="text-sm font-medium">📍 Jl. Merbau Selatan Dalam II</p>
+           <div class="flex justify-center items-center space-x-2 mt-1">
+            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div><span class="text-xs">Online (Aktif)</span>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div><!-- /CCTV RT 4 -->
+<!-- CCTV RT 5 -->
+      <div class="mb-8">
+       <div class="bg-gradient-to-r from-pink-600 to-pink-700 text-white p-4 rounded-t-lg">
+        <h3 class="text-lg font-bold flex items-center">📹 CCTV RT 5</h3>
+        <p class="text-sm opacity-90">Monitoring - 2 Camera - 2 view</p>
+       </div>
+       <div class="bg-gray-100 p-4 rounded-b-lg">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+         <div class="bg-black rounded-lg overflow-hidden shadow-lg">
+          <div class="relative aspect-video bg-black flex items-center justify-center">
+           <video class="hls-live w-full h-full object-contain" controls autoplay muted playsinline
+             data-src="https://livepantau.semarangkota.go.id/02fd87df-1cf0-4b1b-882f-ce719eee715e/video1_stream.m3u8"></video>
+           <div class="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold animate-pulse pointer-events-none">● REC</div>
+           <div class="absolute top-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs pointer-events-none" id="timestamp9">--:--:--</div>
+          </div>
+          <div class="bg-gray-800 text-white p-2 text-center">
+           <p class="text-sm font-medium">📍 Posyandu</p>
+           <div class="flex justify-center items-center space-x-2 mt-1">
+            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div><span class="text-xs">Online (Aktif)</span>
+           </div>
+          </div>
+         </div>
+         <div class="bg-black rounded-lg overflow-hidden shadow-lg">
+          <div class="relative aspect-video bg-black flex items-center justify-center">
+           <video class="hls-live w-full h-full object-contain" controls autoplay muted playsinline
+             data-src="https://livepantau.semarangkota.go.id/02fd87df-1cf0-4b1b-882f-ce719eee715e/videoo1_stream.m3u8"></video>
+           <div class="absolute top-2 right-2 bg-yellow-500 text-white px-2 py-1 rounded text-xs font-bold pointer-events-none">🛠️ PERBAIKAN</div>
+           <div class="absolute top-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded text-xs pointer-events-none" id="timestamp10">--:--:--</div>
+          </div>
+          <div class="bg-gray-800 text-white p-2 text-center">
+           <p class="text-sm font-medium">📍 Pos</p>
+           <div class="flex justify-center items-center space-x-2 mt-1">
+            <div class="w-2 h-2 bg-yellow-400 rounded-full animate-pulse"></div><span class="text-xs text-yellow-300">Perbaikan</span>
+           </div>
+          </div>
+         </div>
+        </div>
+       </div>
+      </div><!-- /CCTV RT 5 -->
+      <!-- Control Panel -->
       <div class="bg-gradient-to-r from-gray-700 to-gray-800 text-white p-4 rounded-lg">
        <h4 class="text-lg font-bold mb-3 flex items-center">🎛️ CONTROL PANEL CCTV</h4>
        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
