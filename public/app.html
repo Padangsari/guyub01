@@ -5426,6 +5426,43 @@ if (currentYear > startYear || (currentYear === startYear && currentMonth >= sta
 
         const NAMA_BULAN_ID = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
 
+        // Parse tanggal string lengkap -> {day, month, year} atau null.
+        // Mendukung YYYY-MM-DD, DD/MM/YYYY, D-M-YY, "12 Januari 2025", dsb.
+        function parseTanggalLengkap(str) {
+            if (!str) return null;
+            const s = String(str).trim();
+            // ISO: YYYY-MM-DD
+            let m = s.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})/);
+            if (m) return { day: +m[3], month: +m[2], year: +m[1] };
+            // DD/MM/YYYY atau DD-MM-YYYY
+            m = s.match(/^(\d{1,2})[-/](\d{1,2})[-/](\d{2,4})/);
+            if (m) {
+                let y = +m[3]; if (y < 100) y += 2000;
+                return { day: +m[1], month: +m[2], year: y };
+            }
+            // "12 Januari 2025" atau "12 Jan 2025"
+            const bulanMap = { jan:1, januari:1, feb:2, februari:2, mar:3, maret:3, apr:4, april:4, mei:5, jun:6, juni:6, jul:7, juli:7, agu:8, agt:8, agustus:8, sep:9, sept:9, september:9, okt:10, oktober:10, nov:11, november:11, des:12, desember:12 };
+            m = s.match(/^(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);
+            if (m) {
+                const b = bulanMap[m[2].toLowerCase()];
+                if (b) return { day: +m[1], month: b, year: +m[3] };
+            }
+            // Fallback: Date.parse
+            const d = new Date(s);
+            if (!isNaN(d.getTime())) return { day: d.getDate(), month: d.getMonth() + 1, year: d.getFullYear() };
+            return null;
+        }
+
+        // Format tanggal menjadi "hari/bulan/tahun" (DD/MM/YYYY) konsisten.
+        // Bila parsing gagal, kembalikan string aslinya.
+        function formatTanggal(str) {
+            const p = parseTanggalLengkap(str);
+            if (!p) return (str != null ? String(str) : '-');
+            const dd = String(p.day).padStart(2, '0');
+            const mm = String(p.month).padStart(2, '0');
+            return `${dd}/${mm}/${p.year}`;
+        }
+
         function populateFilterBulanKas(data) {
             const select = document.getElementById('filterBulanKas');
             if (!select) return;
@@ -5559,7 +5596,7 @@ if (currentYear > startYear || (currentYear === startYear && currentMonth >= sta
                     const pIn = (it.pemasukanSosial||0) + (it.pemasukanKas||0);
                     const pOut = (it.pengeluaranSosial||0) + (it.pengeluaranKas||0);
                     return `<tr class="hover:bg-gray-50">
-                        <td class="px-2 py-2 text-xs text-gray-700 whitespace-nowrap">${escapeHtml(it.tanggal||'-')}</td>
+                        <td class="px-2 py-2 text-xs text-gray-700 whitespace-nowrap">${escapeHtml(formatTanggal(it.tanggal))}</td>
                         <td class="px-2 py-2 text-xs text-gray-800">${escapeHtml(it.uraian||'-')}</td>
                         <td class="px-2 py-2 text-xs text-green-700 whitespace-nowrap">${pIn>0 ? fmt(pIn) : '-'}</td>
                         <td class="px-2 py-2 text-xs text-red-700 whitespace-nowrap">${pOut>0 ? fmt(pOut) : '-'}</td>
@@ -5688,7 +5725,7 @@ if (currentYear > startYear || (currentYear === startYear && currentMonth >= sta
                 
                 row.innerHTML = `
                     <td class="px-2 py-2 text-xs text-gray-900">
-                        <div class="font-medium">${item.tanggal}</div>
+                        <div class="font-medium">${formatTanggal(item.tanggal)}</div>
                         <span class="inline-flex items-center px-1 py-0.5 rounded text-xs font-medium ${getJenisKegiatanColor(item.jenisKegiatan)}">
                             ${getJenisKegiatanIcon(item.jenisKegiatan)}
                         </span>
