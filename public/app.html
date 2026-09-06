@@ -5504,19 +5504,9 @@ if (currentYear > startYear || (currentYear === startYear && currentMonth >= sta
             if (kasEl) kasEl.classList.remove('hidden');
             if (totalEl) totalEl.classList.remove('hidden');
 
-            if (mode === 'ringkasan') {
-                // Mode Ringkasan: tampilkan SEMUA transaksi tetap dalam bentuk baris,
-                // dan sisipkan baris ringkasan di akhir tiap bulan.
-                if (filterSel) filterSel.disabled = true;
-                window.__kasMode = 'ringkasan';
-                renderKeuanganTables(all);
-                if (info) info.textContent = `Mode Ringkasan — ${all.length} transaksi total, dengan ringkasan tiap akhir bulan`;
-                return;
-            }
-
-            // Mode detail (default)
+            // Filter bulan berlaku untuk kedua mode
             if (filterSel) filterSel.disabled = false;
-            window.__kasMode = 'detail';
+            window.__kasMode = mode === 'ringkasan' ? 'ringkasan' : 'detail';
 
             const select = document.getElementById('filterBulanKas');
             const key = select ? select.value : 'all';
@@ -5532,6 +5522,8 @@ if (currentYear > startYear || (currentYear === startYear && currentMonth >= sta
             } else {
                 label = `Menampilkan semua transaksi (${all.length})`;
             }
+            if (mode === 'ringkasan') label += ' — dengan baris ringkasan tiap akhir bulan';
+
             if (info) info.textContent = label;
             renderKeuanganTables(filtered);
         }
