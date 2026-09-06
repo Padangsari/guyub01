@@ -5725,7 +5725,7 @@ if (currentYear > startYear || (currentYear === startYear && currentMonth >= sta
                 
                 row.innerHTML = `
                     <td class="px-2 py-2 text-xs text-gray-900">
-                        <div class="font-medium">${item.tanggal}</div>
+                        <div class="font-medium">${formatTanggal(item.tanggal)}</div>
                         <span class="inline-flex items-center px-1 py-0.5 rounded text-xs font-medium ${getJenisKegiatanColor(item.jenisKegiatan)}">
                             ${getJenisKegiatanIcon(item.jenisKegiatan)}
                         </span>
