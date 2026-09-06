@@ -5596,7 +5596,7 @@ if (currentYear > startYear || (currentYear === startYear && currentMonth >= sta
                     const pIn = (it.pemasukanSosial||0) + (it.pemasukanKas||0);
                     const pOut = (it.pengeluaranSosial||0) + (it.pengeluaranKas||0);
                     return `<tr class="hover:bg-gray-50">
-                        <td class="px-2 py-2 text-xs text-gray-700 whitespace-nowrap">${escapeHtml(it.tanggal||'-')}</td>
+                        <td class="px-2 py-2 text-xs text-gray-700 whitespace-nowrap">${escapeHtml(formatTanggal(it.tanggal))}</td>
                         <td class="px-2 py-2 text-xs text-gray-800">${escapeHtml(it.uraian||'-')}</td>
                         <td class="px-2 py-2 text-xs text-green-700 whitespace-nowrap">${pIn>0 ? fmt(pIn) : '-'}</td>
                         <td class="px-2 py-2 text-xs text-red-700 whitespace-nowrap">${pOut>0 ? fmt(pOut) : '-'}</td>
