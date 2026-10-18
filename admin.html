@@ -20,10 +20,10 @@
 
         if (!session || !session.username || !Number.isFinite(hoursSinceLogin) || hoursSinceLogin < 0 || hoursSinceLogin >= 24) {
           localStorage.removeItem('rt01_admin_session');
-          window.location.replace('webrt.html');
+          window.location.replace('index.html');
         }
       } catch (error) {
-        window.location.replace('webrt.html');
+        window.location.replace('index.html');
       }
     })();
   </script>
@@ -1286,7 +1286,7 @@
       currentAdmin = null;
       localStorage.removeItem('rt01_admin_session');
       localStorage.removeItem('currentAdmin');
-      window.location.href = 'webrt.html';
+      window.location.href = 'index.html';
     }
     
     function updateAdminUI() {
@@ -1388,11 +1388,11 @@
           updateAdminUI();
         } catch (error) {
           console.error('Error parsing saved admin:', error);
-          window.location.replace('webrt.html');
+          window.location.replace('index.html');
         }
       } else {
         hideAllInputButtons();
-        window.location.replace('webrt.html');
+        window.location.replace('index.html');
       }
     }
     
