@@ -605,6 +605,7 @@
        <div class="p-6 border-b border-gray-200">
         <div style="display:flex;align-items:center;gap:10px;">
          <h2 class="text-xl font-bold text-gray-800">Riwayat Data Warga</h2>
+         <button type="button" onclick="printAdminDataTable('table-warga', 'Data Warga', 'portrait')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-semibold shadow" title="Cetak data warga sebagai PDF">🖨️ Cetak PDF</button>
          <button type="button" id="btn-refresh-warga" onclick="manualRefreshWarga()" title="Refresh data" aria-label="Refresh data" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9999px;border:1px solid #d1d5db;background:#fff;cursor:pointer;">
           <svg id="icon-refresh-warga" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
          </button>
@@ -826,6 +827,7 @@
        <div class="p-6 border-b border-gray-200">
         <div style="display:flex;align-items:center;gap:10px;">
          <h2 class="text-xl font-bold text-gray-800">Riwayat Data Aset</h2>
+         <button type="button" onclick="printAdminDataTable('table-aset', 'Data Aset', 'landscape')" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm font-semibold shadow" title="Cetak data aset sebagai PDF">🖨️ Cetak PDF</button>
          <button type="button" id="btn-refresh-aset" onclick="manualRefreshAset()" title="Refresh data" aria-label="Refresh data" style="display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:9999px;border:1px solid #d1d5db;background:#fff;cursor:pointer;">
           <svg id="icon-refresh-aset" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
          </button>
@@ -3012,6 +3014,179 @@ loadHistory('JADWAL');
       const all = Array.isArray(window.__iuranDataFull) ? window.__iuranDataFull : [];
       const names = Array.from(new Set(all.map(it => String(it.namaWarga || '').trim()).filter(Boolean))).sort((a,b) => a.localeCompare(b));
       dl.innerHTML = names.map(n => `<option value="${n.replace(/"/g,'&quot;')}"></option>`).join('');
+    }
+
+    // Open the report from the click handler so embedded browsers can allow printing.
+    function printAdminDataTable(tableId, title, orientation) {
+      const table = document.querySelector(`#${tableId}`)?.closest('table');
+      if (!table) {
+        showToast('Tabel data tidak ditemukan.', 'error');
+        return;
+      }
+
+      const headers = Array.from(table.querySelectorAll('thead th'), cell => cell.textContent.trim());
+      let rows = Array.from(table.querySelectorAll('tbody tr'))
+        .filter(row => row.cells.length === headers.length && Array.from(row.cells).every(cell => cell.colSpan === 1))
+        .map(row => Array.from(row.cells, cell => cell.innerText.trim()));
+
+      if (rows.length === 0) {
+        showToast('Belum ada data untuk dicetak.', 'error');
+        return;
+      }
+
+      const escapeHtml = value => String(value == null ? '' : value)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+      const printedAt = new Date().toLocaleString('id-ID', {
+        dateStyle: 'full',
+        timeStyle: 'short',
+        timeZone: 'Asia/Jakarta'
+      });
+      const dataRowCount = rows.length;
+
+      const isWarga = tableId === 'table-warga';
+      const isAset = tableId === 'table-aset';
+      let summaryHtml = '';
+      let metadataLabel = `${dataRowCount} data`;
+
+      if (isWarga) {
+        const timestampColumn = headers.findIndex(header => /waktu input/i.test(header));
+        const noKkColumn = headers.findIndex(header => /no\s*kk/i.test(header));
+        const dataHeaders = headers.filter((_, index) => index !== timestampColumn);
+        rows = rows
+          .map(row => row.filter((_, index) => index !== timestampColumn))
+          .sort((left, right) => {
+            const leftNoKk = Number(String(left[noKkColumn] || '').replace(/[^\d.-]/g, ''));
+            const rightNoKk = Number(String(right[noKkColumn] || '').replace(/[^\d.-]/g, ''));
+            if (Number.isFinite(leftNoKk) && Number.isFinite(rightNoKk)) return leftNoKk - rightNoKk;
+            return String(left[noKkColumn] || '').localeCompare(String(right[noKkColumn] || ''), 'id', { numeric: true });
+          });
+        metadataLabel = `${dataRowCount} warga`;
+
+        const tableRows = rows.map(row => `
+          <tr>${row.map(cell => `<td>${escapeHtml(cell)}</td>`).join('')}</tr>`).join('');
+        const tableHtml = `
+          <table class="summary-table warga-table">
+            <colgroup><col style="width:8%"><col style="width:23%"><col style="width:49%"><col style="width:20%"></colgroup>
+            <thead><tr>${dataHeaders.map(header => `<th>${escapeHtml(header)}</th>`).join('')}</tr></thead>
+            <tbody>${tableRows}</tbody>
+          </table>`;
+        return printAdminReport(title, orientation, printedAt, metadataLabel, tableHtml, escapeHtml);
+      }
+
+      if (isAset) {
+        const conditionColumn = headers.findIndex(header => /kondisi/i.test(header));
+        const quantityColumn = headers.findIndex(header => /jumlah/i.test(header));
+        const priceColumn = headers.findIndex(header => /harga total/i.test(header));
+        const conditionTotals = new Map([
+          ['BAIK', { count: 0, units: 0, value: 0 }],
+          ['CUKUP', { count: 0, units: 0, value: 0 }],
+          ['RUSAK', { count: 0, units: 0, value: 0 }]
+        ]);
+
+        rows.forEach(row => {
+          const condition = (row[conditionColumn] || 'LAINNYA').trim().toUpperCase();
+          const key = conditionTotals.has(condition) ? condition : 'LAINNYA';
+          if (!conditionTotals.has(key)) conditionTotals.set(key, { count: 0, units: 0, value: 0 });
+          const total = conditionTotals.get(key);
+          total.count += 1;
+          const quantity = Number(String(row[quantityColumn] || '').replace(/[^\d.-]/g, ''));
+          total.units += Number.isFinite(quantity) ? quantity : 0;
+          const value = Number(String(row[priceColumn] || '').replace(/[^\d-]/g, ''));
+          total.value += Number.isFinite(value) ? value : 0;
+        });
+
+        const totalByCondition = Array.from(conditionTotals.values()).reduce((total, item) => ({
+          count: total.count + item.count,
+          units: total.units + item.units,
+          value: total.value + item.value
+        }), { count: 0, units: 0, value: 0 });
+        summaryHtml = `
+          <section class="summary-cards">
+            ${Array.from(conditionTotals, ([condition, total]) => `
+              <div class="summary-card">
+                <span class="summary-label">${escapeHtml(condition)}</span>
+                <strong>${total.units} unit</strong>
+                <span>${total.count} jenis aset</span>
+                <span>Nilai: ${escapeHtml(formatRupiah(total.value))}</span>
+              </div>`).join('')}
+            <div class="summary-card summary-total">
+              <span class="summary-label">TOTAL</span>
+              <strong>${totalByCondition.units} unit</strong>
+              <span>${totalByCondition.count} jenis aset</span>
+              <span>Nilai: ${escapeHtml(formatRupiah(totalByCondition.value))}</span>
+            </div>
+          </section>`;
+        metadataLabel = `${dataRowCount} jenis aset`;
+      }
+
+      const tableRows = rows.map(row => `<tr>${row.map(cell => `<td>${escapeHtml(cell)}</td>`).join('')}</tr>`).join('');
+      const tableHtml = `
+        <table>
+          <thead><tr>${headers.map(header => `<th>${escapeHtml(header)}</th>`).join('')}</tr></thead>
+          <tbody>${tableRows}</tbody>
+        </table>`;
+      printAdminReport(title, orientation, printedAt, metadataLabel, `${summaryHtml}${tableHtml}`, escapeHtml);
+    }
+
+    function printAdminReport(title, orientation, printedAt, metadataLabel, bodyHtml, escapeHtml) {
+      const titleParts = title.trim().split(/\s+/);
+      const titleLead = titleParts.shift() || title;
+      const titleDetail = titleParts.join(' ');
+      const html = `<!doctype html><html lang="id"><head><meta charset="utf-8">
+        <title>${escapeHtml(title)}</title>
+        <style>
+          :root { --ink:#111827; --blue:#374151; --line:#9ca3af; --header:#374151; --stripe:#e5e7eb; --paper:#fff; }
+          * { box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+          @page { size:A4 ${orientation}; margin:10mm 9mm; }
+          body { margin:0; color:var(--ink); background:var(--paper); font-family:Arial,Helvetica,sans-serif; font-size:11px; }
+          .report-header { display:grid; grid-template-columns:65px minmax(0,1fr) 185px; align-items:center; gap:14px; padding:12px 0 18px; border-bottom:4px solid var(--line); margin-bottom:12px; }
+          .brand-icon { flex-shrink:0; display:flex; align-items:center; justify-content:center; width:65px; height:65px; background:var(--blue); color:#fff; border:3px solid var(--line); border-radius:50%; }
+          .brand-icon svg { width:36px; height:36px; }
+          .report-title { min-width:0; }
+          h1 { margin:0 0 9px; font-size:23px; line-height:1.12; }
+          h1 span { display:block; color:var(--blue); font-size:31px; }
+          .location { display:flex; align-items:center; gap:4px; font-size:9px; line-height:1.5; }
+          .location svg { flex-shrink:0; width:13px; height:16px; color:var(--blue); }
+          .meta { width:100%; padding:10px; border:1px solid var(--header); border-radius:8px; font-size:9px; line-height:1.4; }
+          .meta div { display:flex; align-items:flex-start; gap:7px; margin:3px 0; overflow-wrap:anywhere; }
+          .meta svg { flex-shrink:0; width:18px; height:18px; color:var(--blue); }
+          .meta strong { color:var(--blue); }
+          .summary-cards { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; margin:0 0 12px; break-inside:avoid; }
+          .summary-card { display:flex; flex-direction:column; gap:3px; padding:9px; border:1px solid var(--line); border-radius:6px; text-align:center; }
+          .summary-card strong { color:var(--blue); font-size:17px; }
+          .summary-card span:last-child { color:#4b5563; font-size:9px; }
+          .summary-label { font-size:9px; font-weight:700; }
+          .summary-total { background:var(--stripe); }
+          table { width:100%; border-collapse:collapse; table-layout:fixed; font-size:9px; }
+          th, td { padding:5px 6px; border:1px solid var(--line); color:#111; vertical-align:middle; overflow-wrap:anywhere; line-height:1.25; }
+          th { padding:8px 5px; background:var(--header); color:#fff; font-weight:700; text-align:center; }
+          tbody tr:nth-child(even) td { background:var(--stripe); }
+          tbody tr:nth-child(odd) td { background:var(--paper); }
+          .warga-table td:first-child { text-align:center; }
+          .warga-table td:nth-child(2) { font-weight:700; }
+          thead { display:table-header-group; }
+          tr { break-inside:avoid; page-break-inside:avoid; }
+          @media print { body { print-color-adjust:exact; -webkit-print-color-adjust:exact; } }
+          @media screen and (max-width:700px) { .summary-cards { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+        </style></head><body>
+        <header class="report-header">
+          <div class="brand-icon"><svg viewBox="0 0 24 24" aria-label="Rumah warga"><path fill="currentColor" d="M12 2 1 11h3v10h6v-7h4v7h6V11h3Z"/></svg></div>
+          <div class="report-title">
+            <h1>${escapeHtml(titleLead)}<span>${escapeHtml(titleDetail || 'RT 01 RW VIII')}</span></h1>
+            <div class="location"><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7Zm0 10a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z"/></svg><span>Warga RT.01 / RW.VIII · Kel. Padangsari · Kec. Banyumanik</span></div>
+          </div>
+          <div class="meta">
+            <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 2v6M17 2v6M3 10h18M8 14h3M14 14h3M8 18h3"/></svg><span><strong>Tanggal Cetak:</strong><br>${escapeHtml(printedAt)}</span></div>
+            <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18"/></svg><span><strong>Jumlah Baris:</strong> ${escapeHtml(metadataLabel)}</span></div>
+          </div>
+        </header>
+        ${bodyHtml}
+        </body></html>`;
+
+      printLaporanHtml(html);
     }
 
     // Open the report from the click handler so embedded browsers can allow printing.

@@ -623,13 +623,13 @@ document.addEventListener('DOMContentLoaded', function () {
        </div>
       </div><!-- Sub Navigation for Keuangan -->
       <div class="border-b border-gray-200 mb-6">
-       <nav class="flex space-x-8"><button onclick="switchKeuanganTab('laporan-kas')" class="keuangan-sub-tab active py-2 px-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors"> 📊 Laporan Kas </button> <button onclick="switchKeuanganTab('rekapitulasi-iuran')" class="keuangan-sub-tab py-2 px-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors"> 💳 Rekapitulasi Iuran </button>
+       <nav class="flex flex-wrap gap-x-8 gap-y-2"><button onclick="switchKeuanganTab('laporan-kas')" class="keuangan-sub-tab active py-2 px-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors"> 💰 Sosial &amp; Kas </button> <button onclick="switchKeuanganTab('rekapitulasi-iuran')" class="keuangan-sub-tab py-2 px-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors"> 💳 Rekapitulasi Iuran </button> <button onclick="switchKeuanganTab('data-file')" class="keuangan-sub-tab py-2 px-1 border-b-2 border-transparent text-sm font-medium text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors"> 📁 Data File </button>
        </nav>
       </div><!-- Laporan Kas Content -->
       <div id="laporan-kas" class="keuangan-sub-content active">
        <div class="mb-6">
         <div class="flex justify-between items-center mb-2">
-         <h3 class="text-lg font-semibold text-gray-900">📊 Laporan Kas RT 01 RW VIII</h3><button onclick="downloadLaporanKasPDF()" class="bg-red-500 hover:bg-red-600 text-white text-sm px-4 py-2 rounded-md transition-colors flex items-center space-x-2 shadow-lg hover:shadow-xl"> <span>📄</span> <span>Download PDF</span> </button>
+         <h3 class="text-lg font-semibold text-gray-900">💰 Laporan Sosial &amp; Kas RT 01 RW VIII</h3><button onclick="downloadLaporanKasPDF()" class="bg-red-500 hover:bg-red-600 text-white text-sm px-4 py-2 rounded-md transition-colors flex items-center space-x-2 shadow-lg hover:shadow-xl"> <span>📄</span> <span>Download PDF</span> </button>
         </div>
         <p class="text-sm text-gray-600">Laporan keuangan terpisah untuk Dana Sosial dan Dana Kas</p>
         <!-- Filter Bulan Laporan Kas -->
@@ -876,6 +876,26 @@ document.addEventListener('DOMContentLoaded', function () {
           </tr>
          </tbody>
         </table>
+       </div>
+      </div>
+      <div id="data-file" class="keuangan-sub-content">
+       <div class="mb-4">
+        <div class="flex justify-between items-center mb-2">
+         <h3 class="text-lg font-semibold text-gray-900">📁 Data File</h3>
+         <a href="https://docs.google.com/spreadsheets/d/e/2PACX-1vTdk9H4kLXUlojQmC4i9Of9zut89oNBlvp-ObLBbNBxtSjYCpghV9bCSfD_pDzKn1Iu2sRdnZrj0CAT/pubhtml#gid=1329595743" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center gap-2 rounded-md bg-blue-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-blue-700">
+          <span aria-hidden="true">↗</span><span>Buka spreadsheet</span>
+         </a>
+        </div>
+        <p class="text-sm text-gray-600">Spreadsheet data iuran warga.</p>
+       </div>
+       <div class="overflow-hidden rounded-lg border border-gray-200 bg-white">
+        <iframe
+         src="https://docs.google.com/spreadsheets/d/e/2PACX-1vTdk9H4kLXUlojQmC4i9Of9zut89oNBlvp-ObLBbNBxtSjYCpghV9bCSfD_pDzKn1Iu2sRdnZrj0CAT/pubhtml?widget=true&amp;headers=false#gid=1329595743"
+         title="Spreadsheet Data Iuran Warga"
+         loading="lazy"
+         class="block w-full"
+         style="height: min(75vh, 900px); min-height: 600px;"
+         referrerpolicy="strict-origin-when-cross-origin"></iframe>
        </div>
       </div>
      </div>
