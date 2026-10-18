@@ -539,27 +539,21 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
           </div>
           <div class="text-center p-4 bg-green-50 rounded-lg">
-            <div class="text-2xl font-bold text-green-600">
-              40
-            </div>
+            <div id="infoTotalKK" class="text-2xl font-bold text-green-600">41</div>
             <div class="text-sm text-gray-600">
               Kepala Keluarga
             </div>
           </div>
           <div class="text-center p-4 bg-yellow-50 rounded-lg">
-            <div class="text-2xl font-bold text-yellow-600">
-              108
-            </div>
+            <div id="infoTotalJiwa" class="text-2xl font-bold text-yellow-600">113</div>
             <div class="text-sm text-gray-600">
               Total Jiwa
             </div>
           </div>
           <div class="text-center p-4 bg-purple-50 rounded-lg">
-            <div class="text-2xl font-bold text-purple-600">
-              3
-            </div>
+            <div id="infoTotalKamera" class="text-2xl font-bold text-purple-600">3</div>
             <div class="text-sm text-gray-600">
-              Kamera PREPARE
+              Kamera Aktif
             </div>
           </div>
         </div>
@@ -936,7 +930,7 @@ document.addEventListener('DOMContentLoaded', function () {
     <div id="cctv" class="tab-content">
      <div class="bg-white rounded-lg shadow-md p-6">
       <div class="flex justify-between items-center mb-6">
-       <h2 class="text-2xl font-bold text-gray-900 flex items-center">📹 CCTV Security RT 01 RW VIII (PREPARE)</h2>
+       <h2 class="text-2xl font-bold text-gray-900 flex items-center">📹 CCTV Security RT 01 RW VIII (AKTIF)</h2>
        <div class="flex items-center space-x-4">
         <div class="flex items-center space-x-2">
          <div class="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div><span class="text-sm text-green-600 font-medium">Live Monitoring</span>
@@ -948,25 +942,19 @@ document.addEventListener('DOMContentLoaded', function () {
       </div><!-- Status Summary -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
        <div class="bg-green-50 rounded-lg p-4 text-center">
-        <div class="text-2xl font-bold text-green-600">
-         3
-        </div>
+        <div id="cctvTotalCamera" class="text-2xl font-bold text-green-600">3</div>
         <div class="text-sm text-green-700">
          Total Kamera
         </div>
        </div>
        <div class="bg-blue-50 rounded-lg p-4 text-center">
-        <div class="text-2xl font-bold text-blue-600">
-         6
-        </div>
+        <div id="cctvTotalViews" class="text-2xl font-bold text-blue-600">12</div>
         <div class="text-sm text-blue-700">
          View Kamera
         </div>
        </div>
        <div class="bg-yellow-50 rounded-lg p-4 text-center">
-        <div class="text-2xl font-bold text-yellow-600">
-         3
-        </div>
+        <div id="cctvTotalLocations" class="text-2xl font-bold text-yellow-600">5</div>
         <div class="text-sm text-yellow-700">
          Lokasi Pantau
         </div>
@@ -1439,6 +1427,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Baca ?tab= dari URL dan pindah ke tab yang diminta
         initTabFromUrl();   // <<< TAMBAHAN SATU BARIS INI
 
+        syncInfoCameraSummary();
         updateCCTVTime();
         updateCurrentDate();
         
@@ -2083,12 +2072,74 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
 
+        function updateInfoPopulationSummary(totalKK, totalJiwa) {
+            const totalKKElement = document.getElementById('infoTotalKK');
+            const totalJiwaElement = document.getElementById('infoTotalJiwa');
+
+            if (totalKKElement) totalKKElement.textContent = totalKK;
+            if (totalJiwaElement) totalJiwaElement.textContent = totalJiwa;
+        }
+
+        function syncInfoCameraSummary() {
+            const cctvTotalCamera = document.getElementById('cctvTotalCamera');
+            const cctvTotalViews = document.getElementById('cctvTotalViews');
+            const cctvTotalLocations = document.getElementById('cctvTotalLocations');
+            const infoTotalCamera = document.getElementById('infoTotalKamera');
+            const cameraLocations = [...document.querySelectorAll('#cctv h3')]
+                .filter(heading => /\bCCTV\s+RT\b/i.test(heading.textContent))
+                .map(heading => heading.closest('.mb-8'))
+                .filter(Boolean);
+            let totalCameras = 0;
+            let totalViews = 0;
+
+            cameraLocations.forEach(location => {
+                const description = location.querySelector('.bg-gradient-to-r p')?.textContent || '';
+                const cameraMatch = description.match(/(\d+)\s*Camera\b/i);
+                const viewMatch = description.match(/(\d+)\s*view\b/i);
+                totalCameras += cameraMatch ? Number(cameraMatch[1]) : 0;
+                totalViews += viewMatch ? Number(viewMatch[1]) : 0;
+            });
+
+            if (cctvTotalCamera) cctvTotalCamera.textContent = String(totalCameras);
+            if (cctvTotalViews) cctvTotalViews.textContent = String(totalViews);
+            if (cctvTotalLocations) cctvTotalLocations.textContent = String(cameraLocations.length);
+
+            if (cctvTotalCamera && infoTotalCamera) {
+                infoTotalCamera.textContent = cctvTotalCamera.textContent.trim();
+            }
+
+            const cctvContainer = document.getElementById('cctv');
+            if (cctvContainer && !window.cctvSummaryObserver) {
+                window.cctvSummaryObserver = new MutationObserver(records => {
+                    const locationChanged = records.some(record => {
+                        const target = record.target.nodeType === Node.ELEMENT_NODE
+                            ? record.target
+                            : record.target.parentElement;
+                        const addedLocation = Array.from(record.addedNodes).some(node =>
+                            node.nodeType === Node.ELEMENT_NODE &&
+                            (node.matches('.mb-8') || node.querySelector('.mb-8'))
+                        );
+
+                        return Boolean(target && target.closest('.mb-8')) || addedLocation;
+                    });
+
+                    if (locationChanged) syncInfoCameraSummary();
+                });
+                window.cctvSummaryObserver.observe(cctvContainer, {
+                    childList: true,
+                    characterData: true,
+                    subtree: true
+                });
+            }
+        }
+
         // Render Warga Data with Enhanced Table Display
         function renderWargaData(wargaData) {
             const wargaContainer = document.querySelector('#warga .bg-white');
             if (!wargaContainer) return;
             
             if (wargaData.length === 0) {
+                updateInfoPopulationSummary(0, 0);
                 wargaContainer.innerHTML = `
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-xl font-semibold text-gray-900 flex items-center">
@@ -2120,6 +2171,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const totalKK = wargaData.length;
             const totalJiwa = wargaData.reduce((sum, warga) => sum + parseInt(warga.jumlahJiwa || 1), 0);
             const avgJiwaPerKK = (totalJiwa / totalKK).toFixed(1);
+            updateInfoPopulationSummary(totalKK, totalJiwa);
             
             wargaContainer.innerHTML = `
                 <div class="flex justify-between items-center mb-6">
